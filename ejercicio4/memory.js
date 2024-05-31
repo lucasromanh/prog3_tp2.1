@@ -25,12 +25,33 @@ class Card {
     #flip() {
         const cardElement = this.element.querySelector(".card");
         cardElement.classList.add("flipped");
+        this.isFlipped = true;
     }
 
     #unflip() {
         const cardElement = this.element.querySelector(".card");
         cardElement.classList.remove("flipped");
+        this.isFlipped = false;
     }
+
+    toggleFlip() {
+        if (this.isFlipped) {
+            this.#unflip();
+        } else {
+            this.#flip();
+        }
+    }
+
+    match() {
+        this.element.classList.add("matched");
+    }
+
+    reset() {
+        this.#unflip();
+        this.element.classList.remove("matched");
+    }
+
+
 }
 
 class Board {
@@ -74,6 +95,41 @@ class Board {
             this.onCardClick(card);
         }
     }
+
+    flip = (card) => {
+        card.toggleFlip();
+    };
+
+    checkForMatch() {
+        const [firstCard, secondCard] = this.cards.filter(
+            (card) => card.isFlipped
+        );
+
+        if (firstCard.name === secondCard.name) {
+            firstCard.match();
+            secondCard.match();
+        } else {
+            setTimeout(() => {
+                firstCard.toggleFlip();
+                secondCard.toggleFlip();
+            }, 1000);
+        }
+
+        this.flippedCards = [];
+    }
+
+    reset() {
+        this.cards.forEach((card) => card.reset());
+        this.render();
+    }
+
+    resetGame() {
+        this.reset();
+        this.cards = this.cards.sort(() => Math.random() - 0.5);
+    }
+
+
+
 }
 
 class MemoryGame {
@@ -102,6 +158,33 @@ class MemoryGame {
             }
         }
     }
+
+    checkForMatch() {
+        const [firstCard, secondCard] = this.flippedCards;
+
+        if (firstCard.name === secondCard.name) {
+            firstCard.match();
+            secondCard.match();
+            this.matchedCards.push(firstCard, secondCard);
+        } else {
+            firstCard.toggleFlip();
+            secondCard.toggleFlip();
+        }
+
+        this.flippedCards = [];
+    }
+
+    reset() {
+        this.board.reset();
+        this.flippedCards = [];
+        this.matchedCards = [];
+    }
+
+    resetGame() {
+        this.reset();
+        this.board.cards = this.board.cards.sort(() => Math.random() - 0.5);
+    }
+
 }
 
 document.addEventListener("DOMContentLoaded", () => {
